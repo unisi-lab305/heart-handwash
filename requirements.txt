@@ -1,4 +1,7 @@
-numpy
-tensorflow
-opencv-python
-keras
+# python 3.9.21
+tensorflow[and-cuda]==2.7.0
+numpy==1.21.6
+opencv-python==4.5.5.64
+keras==2.7.0
+matplotlib==3.4.3
+protobuf==3.20.*
