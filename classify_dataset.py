@@ -44,8 +44,8 @@ num_extra_layers = int(os.getenv("HANDWASH_EXTRA_LAYERS", 0))
 
 # data augmentation
 data_augmentation = tf.keras.Sequential([
-    tf.keras.layers.experimental.preprocessing.RandomFlip('horizontal'),
-    tf.keras.layers.experimental.preprocessing.RandomRotation(0.2),
+    tf.keras.layers.RandomFlip('horizontal'),
+    tf.keras.layers.RandomRotation(0.2),
 ])
 
 def freeze_model(model):
@@ -243,20 +243,20 @@ def get_merged_model():
 
 
 def fit_model(name, model, train_ds, val_ds, test_ds, weights_dict):
-    # callbacks to implement early stopping and saving the model
+    os.makedirs("./results/models", exist_ok=True)
     es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=10)
-    mc = ModelCheckpoint(monitor='val_accuracy', mode='max',
-                         verbose=1, save_freq='epoch',
-                         filepath=name+'.{epoch:02d}-{val_accuracy:.2f}.h5')
+    mc = ModelCheckpoint(filepath=f"./results/models/{name}.{{epoch:02d}}-{{val_accuracy:.2f}}.keras",
+                         monitor='val_accuracy', mode='max',
+                         verbose=1, save_best_only=True)
 
     print("fitting the model...")
     history = model.fit(train_ds,
                         epochs=num_epochs,
                         validation_data=val_ds,
                         class_weight=weights_dict,
-                        callbacks=[es]) # add mc to save after each epoch
+                        callbacks=[es, mc])
 
-    model.save(name + "final-model")
+    model.save(f"./results/models/{name}-final-model.keras")
 
     # visualise accuracy
     train_acc = history.history['accuracy']
@@ -271,7 +271,8 @@ def fit_model(name, model, train_ds, val_ds, test_ds, weights_dict):
     plt.ylabel('Accuracy')
     plt.ylim([min(plt.ylim()),1])
     plt.title('Training and Validation Accuracy')
-    plt.savefig("accuracy-{}.pdf".format(name), format="pdf")
+    os.makedirs("./results/plots", exist_ok=True)
+    plt.savefig("./results/plots/accuracy-{}.pdf".format(name), format="pdf")
 
     measure_performance("validation", name, model, val_ds)
     del val_ds
@@ -279,7 +280,9 @@ def fit_model(name, model, train_ds, val_ds, test_ds, weights_dict):
     test_loss, test_accuracy = model.evaluate(test_ds)
     result_str = 'Test loss: {} accuracy: {}\n'.format(test_loss, test_accuracy)
     print(result_str)
-    with open("results-{}.txt".format(name), "a+") as f:
+
+    os.makedirs("./results/scores", exist_ok=True)
+    with open("./results/scores/results-{}.txt".format(name), "a+") as f:
         f.write(result_str)
 
     measure_performance("test", name, model, test_ds)
@@ -327,7 +330,7 @@ def measure_performance(ds_name, name, model, ds, num_classes=N_CLASSES):
         f1_scores.append(f1)
     s = "Average {} F1 score: {:.2f}\n".format(ds_name, np.mean(f1_scores))
     print(s)
-    with open("results-{}.txt".format(name), "a+") as f:
+    with open("./results/scores/results-{}.txt".format(name), "a+") as f:
        f.write(s)
 
 
@@ -367,7 +370,7 @@ def evaluate(name, train_ds, val_ds, test_ds, weights_dict={}, model=None):
         name += "-extralayers" + str(num_extra_layers)
 
     # clear the results file
-    with open("results-{}.txt".format(name), "a+") as f:
+    with open("./results/scores/results-{}.txt".format(name), "a+") as f:
         pass
 
     if len(pretrained_model_path):
