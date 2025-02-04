@@ -3,6 +3,14 @@ dataset-kaggle/
 dataset-metc/
 dataset-pskus/
 
+# Results
+results-*.txt
+*.pdf
+
+# Models
+*.h5
+*.keras
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

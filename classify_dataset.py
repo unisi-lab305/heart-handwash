@@ -11,10 +11,15 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 from tensorflow.keras.layers import Layer
 
-# enable memory growth
+# Enable memory growth for all GPUs
 physical_devices = tf.config.list_physical_devices('GPU')
-if len(physical_devices):
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+if physical_devices:  # Controlla se ci sono GPU disponibili
+    try:
+        for gpu in physical_devices:
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(f"GPU error configuration: {e}")
+
 
 # Define parameters for the dataset loader.
 # Adjust batch size according to the memory volume of your GPU;
