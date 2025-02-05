@@ -54,4 +54,4 @@ TFLITE_PATH = os.path.join(MODEL_DIR, MODEL_NAME + ".tflite")
 with open(TFLITE_PATH, "wb") as f:
     f.write(tflite_model)
 
-print(f"Modello convertito salvato in {TFLITE_PATH}")
+print(f"Tflite model saved to: {TFLITE_PATH}")
