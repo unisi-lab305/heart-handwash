@@ -7,14 +7,19 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 import sys
+import os
 
-MODEL_NAME = "test"
+MODEL_DIR = "./results/models/"
+MODEL_NAME = "kaggle-single-frame-final-model"
 
 if len(sys.argv) > 1:
     MODEL_NAME = sys.argv[1]
 
-if MODEL_NAME.endswith(".h5"):
-    MODEL_NAME = MODEL_NAME[:-3]
+MODEL_PATH = os.path.join(MODEL_DIR, MODEL_NAME + ".keras")
+
+if not os.path.exists(MODEL_PATH):
+    print(f"Error: Model {MODEL_PATH} not found.")
+    sys.exit(1)
     
 
 class MobileNetPreprocessingLayer(Layer):
@@ -34,16 +39,19 @@ class MobileNetPreprocessingLayer(Layer):
 custom_objects = {"MobileNetPreprocessingLayer": MobileNetPreprocessingLayer}
 
 
-# convert to tensorflow lite format
-model = tf.keras.models.load_model(MODEL_NAME + ".h5", custom_objects)
+print(f"Loading model from {MODEL_PATH}...")
+model = tf.keras.models.load_model(MODEL_PATH, custom_objects)
+
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 converter.target_spec.supported_ops = [
-   tf.lite.OpsSet.TFLITE_BUILTINS, # enable TensorFlow Lite ops.
-   tf.lite.OpsSet.SELECT_TF_OPS # enable TensorFlow ops.
+    tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops
+    tf.lite.OpsSet.SELECT_TF_OPS     # enable TensorFlow ops
 ]
 
-#converter.optimizations = [tf.lite.Optimize.DEFAULT]
-#converter.target_spec.supported_types = [tf.float16]
-tfmodel = converter.convert()
-with open (MODEL_NAME + ".tflite" , "wb")  as f:
-    f.write(tfmodel)
+tflite_model = converter.convert()
+TFLITE_PATH = os.path.join(MODEL_DIR, MODEL_NAME + ".tflite")
+
+with open(TFLITE_PATH, "wb") as f:
+    f.write(tflite_model)
+
+print(f"Modello convertito salvato in {TFLITE_PATH}")
