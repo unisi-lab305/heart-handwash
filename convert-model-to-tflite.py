@@ -6,6 +6,7 @@
 
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 import sys
 import os
 
@@ -20,18 +21,18 @@ MODEL_PATH = os.path.join(MODEL_DIR, MODEL_NAME + ".keras")
 if not os.path.exists(MODEL_PATH):
     print(f"Error: Model {MODEL_PATH} not found.")
     sys.exit(1)
-    
+
 
 class MobileNetPreprocessingLayer(Layer):
     def __init__(self, **kwargs):
         super(MobileNetPreprocessingLayer, self).__init__(**kwargs)
-    
+
     def build(self, input_shape):
         super(MobileNetPreprocessingLayer, self).build(input_shape)
-        
+
     def call(self, x):
-        return (x / 127.5) - 1.0
-    
+        return preprocess_input(x)
+
     def compute_output_shape(self, input_shape):
         return input_shape
 

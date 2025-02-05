@@ -12,6 +12,10 @@ results-*.txt
 *.keras
 *.tflite
 
+# Notebooks
+*.ipynb_checkpoints/
+*.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
