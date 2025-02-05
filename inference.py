@@ -31,7 +31,8 @@ def main(args):
     img_height, img_width = input_details[0]['shape'][1:3]
 
     # Define class names (modify if needed)
-    class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6"]
+    # class_names = ["Class 0", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6"]
+    class_names = ["Step 7", "Step 1", "Step  2", "Step  3", "Step  4", "Step  5", "Step  6"]
 
     # Hysteresis buffer
     last_predictions = deque(maxlen=args.len_buffer)
